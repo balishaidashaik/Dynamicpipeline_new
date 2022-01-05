@@ -1,0 +1,44 @@
+- job:
+    project-type: pipeline
+    name: <Pipeline Name>
+    sandbox: true
+    parameters:
+    - string:
+        default: <Build Name>
+        description: 'build name'
+        name: BUILD_NAME
+    - string:
+        default: <App Git URL>
+        description: 'application git url'
+        name: APP_URL
+    - string:
+        default: <Jenkins Credential ID>
+        description: 'git repo credentials'
+        name: Credential_ID 
+    - string:
+        default: <Project Name>
+        description: 'Project Name'
+        name: Application_Name 
+    pipeline-scm:
+        scm:
+        - git:
+            url: <Pipeline Git Url>
+            branches:
+              - '*/master'
+            clean: true
+            credentials-id: <git credentials Id (Configured in Jenkins)>
+        script-path: <Path to selected groovy script>
+        lightweight-checkout: true
+    builders:
+      - maven-target:
+          maven-version: <Maven Version>
+          pom: <Path of Pom.xml>
+          goals: clean compile package install test
+          
+    triggers:
+    - pollscm:
+        cron: '* * * * *'
+        ignore-post-commit-hooks: True 
+    wrappers:
+    - build-name:
+        name: "#$BUILD_NUMBER mkdir $BUILD_NAME"
